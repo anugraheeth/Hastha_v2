@@ -2,9 +2,11 @@ import express from 'express'
 import login from '../Controller/Authentication.js'
 import dashboard from '../Controller/Data.js'
 import Details from '../Controller/Details.js'
+import publicc from '../Controller/Public.js'
 
 const Routes = express.Router()
 
+Routes.get('/',publicc) // newly added
 Routes.post('/login',login)
 Routes.get('/dashboard',dashboard)
 Routes.get('/resdetails',Details.resdetails)

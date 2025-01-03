@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../component/navbar";
 import SmallCard from "../component/smallcard";
@@ -6,16 +6,9 @@ import logo from "../images/digi.png";
 import MapComponent from "../component/map";
 import Footer from "../component/footer";
 import { User, Lock } from "lucide-react";
-import { post } from "./services/ApiEndPoint";
+import { get,post } from "./services/ApiEndPoint";
 
-const categories = [
-  { title: "Students", count: 103, icon: "🎓" },
-  { title: "Business", count: 9, icon: "💼" },
-  { title: "Women & Children", count: 435, icon: "👩‍👧" },
-  { title: "Employment", count: 25, icon: "🛠️" },
-  { title: "Population", count: 765, icon: "👥" },
-  { title: "Differently abled", count: 15, icon: "♿" },
-];
+
 
 const SearchBar = () => (
   <div className="flex justify-center mt-6">
@@ -32,7 +25,16 @@ const SearchBar = () => (
 
 const App = () => {
 
-  const navigate =useNavigate();
+  const navigate = useNavigate();
+  const [loading,setLoading] = useState(false);
+  const [population,setPop] = useState(0)
+  const [bussiness,setB] =useState(0)
+  const [house,setH] =useState(0)
+  const [edu,setE] =useState(0)
+  const [senior,setS] =useState(0)
+  const [disable,setD] =useState(0)
+  
+
 
   const [formData, setFormData] = useState({
     your_name: "",
@@ -61,6 +63,43 @@ const App = () => {
        console.log(error.response.data.message)
     }
   };
+
+  const fetchpublic = async () => {
+    try {
+      setLoading(true);
+      const response = await get('/api/auth/');
+      const data = response.data.data
+      setPop(data.population)
+      setH(data.houses)
+      setB(data.bussiness)
+      setS(data.seniorcitizens)
+      setE(data.edutotal)
+      setD(data.disable)
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }finally{
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchpublic();
+  },[])
+
+  const categories = [
+    { title: "Population", count: population, icon: "👥" },
+    { title: "Houses", count: house, icon: "🏠" },
+    { title: "Business", count: bussiness, icon: "💼" },
+    { title: "Senior Citizens", count: senior, icon: "🧓" },
+    { title: "Students", count: edu, icon: "🎓" },
+    { title: "Differently abled", count: disable, icon: "♿" },
+  ];
+
+  if(loading){
+    <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+    </div>
+  }
 
   return (
     <div className="font-sans bg-gray-50 text-gray-800">
