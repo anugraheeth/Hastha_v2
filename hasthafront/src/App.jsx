@@ -7,6 +7,7 @@ import Comdetails from './pages/details/comdetails'
 import Hosdetails from './pages/details/hosdetails.jsx'
 import Edudetails from './pages/details/edudetails.jsx'
 import Inddetails from './pages/details/inddetails.jsx'
+import Resfilter from './pages/filters/resfilter.jsx'
 
 function App(){
   return (
@@ -19,6 +20,7 @@ function App(){
           <Route path='/comdetails' element={<Comdetails/>}/>
           <Route path='/edudetails' element={<Edudetails/>}/>
           <Route path='/inddetails' element={<Inddetails/>}/>
+          <Route path='/resfilter' element={<Resfilter/>}/>
         </Routes>
     </div>
   )
