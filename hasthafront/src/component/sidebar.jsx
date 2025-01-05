@@ -51,10 +51,13 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
               Residential Details
             </li>
           </Link>
-          <li className="p-4 hover:bg-gray-200 hover:text-orange-600 cursor-pointer flex items-center">
-            <SlidersHorizontal size={14} className="mr-2" />
-            Residential Filter
-          </li>
+          <Link to='/resfilter'>
+            <li className="p-4 hover:bg-gray-200 hover:text-orange-600 cursor-pointer flex items-center">
+              <SlidersHorizontal size={14} className="mr-2" />
+              Residential Filter
+            </li>
+          </Link>
+          
         </ul>
         <ul>
           <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Non Residential</li>

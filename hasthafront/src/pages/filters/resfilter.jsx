@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import {Link} from 'react-router-dom';
 import { SearchIcon, Menu, X, Home } from "lucide-react";
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
@@ -8,53 +7,56 @@ import { saveAs } from "file-saver";
 import Sidebar from "../../component/sidebar";
 import DashFoot from "../../component/dashfooter";
 import { get } from "../services/ApiEndPoint";
+import FilterSidebar from "../../component/filter";
 
 const Resfilter = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filteredUsers, setFilteredUser] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [users,setusers] = useState([]);
+  const [users, setUsers] = useState([]);
 
-  const getData = async() =>{
-      try {
-        
-        setLoading(true);
-        const response = await get('api/auth/resdetails');
-        const data = response.data.data
-        console.log(response.data.message)
-        setusers(data);
+  const getData = async () => {
+    try {
+      setLoading(true);
+      const response = await get('api/auth/resfilter');
+      const data = response.data.data;
+      console.log(response.data.message);
+      setUsers(data);
+    } catch (error) {
+      console.log(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-      } catch (error) {
-        console.log(error.message)
-      }finally{
-        setLoading(false)
-      }
-  }
-
-  useEffect(()=>{
+  useEffect(() => {
     getData();
-  },[])
+  }, []);
 
-  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
-
-  let filteredUsers;
-  if(users!=null){
-    filteredUsers = users.filter(
-      (user) =>
-        user.name_of_family_head.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.house_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-  
+  useEffect(() => {
+    if (users.length > 0) {
+      const filteredUser = users.filter(
+        (user) =>
+          user.f_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.house_number.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredUser(filteredUser);
+    }
+  }, [users, searchTerm]);  
 
   const handleDownloadCSV = () => {
     const csvData = [
-      ["House NO", "Family Head", "Contact", "No: of Members"],
-      ...filteredUsers.map((user) => [user.house_number, user.name_of_family_head, user.contac_number_familyhead, user.num_of_family_members]),
+      ["House NO", "Name", "Blood Group", "Contact"],
+      ...filteredUsers.map((user) => [
+        user.house_number,
+        user.f_name,
+        user.blood_group,
+        user.phone_num,
+      ]),
     ];
 
     const csvContent =
@@ -75,13 +77,13 @@ const Resfilter = () => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     const tableData = filteredUsers.map((user) => [
-      user.house_number, 
-      user.name_of_family_head, 
-      user.contac_number_familyhead, 
-      user.num_of_family_members,
+      user.house_number,
+      user.f_name,
+      user.blood_group,
+      user.phone_num,
     ]);
     doc.autoTable({
-      head: [["House NO", "Family Head", "Contact", "No: of Members"]],
+      head: [["House NO", "Name", "Blood Group", "Contact"]],
       body: tableData,
     });
     doc.save("users.pdf");
@@ -101,9 +103,9 @@ const Resfilter = () => {
         (user) => `  
   <user>
     <House_NO>${user.house_number}</House_NO>
-    <Family_Head>${user.name_of_family_head}</Family_Head>
-    <Contact>${user.contac_number_familyhead}</Contact>
-    <No_Of_Members>${user.num_of_family_members}</No_Of_Members>
+    <Name>${user.f_name}</Name>
+    <Blood_Group>${user.blood_group}</Blood_Group>
+    <Contact>${user.phone_num}</Contact>
   </user>`
       )
       .join("");
@@ -116,6 +118,8 @@ const Resfilter = () => {
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
+
+  const toggleSidebar =() => {setSidebarOpen(!isSidebarOpen)}
 
   const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
   const currentUsers = filteredUsers.slice(
@@ -132,10 +136,10 @@ const Resfilter = () => {
     setCurrentPage(1);
   };
 
-  if(loading) return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
-      </div>
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+    </div>
   );
 
   return (
@@ -157,171 +161,7 @@ const Resfilter = () => {
           </header>
           <main className="flex p-6 bg-gray-100 overflow-y-auto">
             <div>
-            <aside
-            className={`fixed top-0 left-0 h-full w-64 bg-white shadow-md  transition-transform duration-300 ease-in-out md:translate-x-0 md:relative z-20`}
-            >
-                <nav className="mt-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 99px)' }}>
-                    <ul>
-                    <Link to='/dashboard'>
-                        <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                            <Home size={14} className="mr-2" />
-                        Dashboard
-                        </li>
-                    </Link>
-                    </ul>
-
-                    {/* Filter Categories */}
-                    
-                    <ul>
-                    <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Sex</li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="male" />
-                        <label htmlFor="male">Male</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="female" />
-                        <label htmlFor="female">Female</label>
-                    </li>
-                    </ul>
-
-                    <ul>
-                    <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Income</li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="low-income" />
-                        <label htmlFor="low-income">Low Income</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="middle-income" />
-                        <label htmlFor="middle-income">Middle Income</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="high-income" />
-                        <label htmlFor="high-income">High Income</label>
-                    </li>
-                    </ul>
-
-                    <ul>
-                    <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Job Sector</li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="private" />
-                        <label htmlFor="private">Private</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="government" />
-                        <label htmlFor="government">Government</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="self-employed" />
-                        <label htmlFor="self-employed">Self Employed</label>
-                    </li>
-                    </ul>
-
-                    <ul>
-                    <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Marital Status</li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="single" />
-                        <label htmlFor="single">Single</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="married" />
-                        <label htmlFor="married">Married</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="divorced" />
-                        <label htmlFor="divorced">Divorced</label>
-                    </li>
-                    </ul>
-
-                    <ul>
-                    <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Education</li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="high-school" />
-                        <label htmlFor="high-school">High School</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="bachelor" />
-                        <label htmlFor="bachelor">Bachelor's Degree</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="master" />
-                        <label htmlFor="master">Master's Degree</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="phd" />
-                        <label htmlFor="phd">PhD</label>
-                    </li>
-                    </ul>
-
-                    <ul>
-                    <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Blood Group</li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="a-positive" />
-                        <label htmlFor="a-positive">A+</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="b-positive" />
-                        <label htmlFor="b-positive">B+</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="o-positive" />
-                        <label htmlFor="o-positive">O+</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="ab-positive" />
-                        <label htmlFor="ab-positive">AB+</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="negative" />
-                        <label htmlFor="negative">Rh-</label>
-                    </li>
-                    </ul>
-
-                    <ul>
-                    <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Ex-Services</li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="yes" />
-                        <label htmlFor="yes">Yes</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="no" />
-                        <label htmlFor="no">No</label>
-                    </li>
-                    </ul>
-
-                    <ul>
-                    <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Health Conditions</li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="bp" />
-                        <label htmlFor="bp">BP</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="sugar" />
-                        <label htmlFor="sugar">Sugar</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="bedridden" />
-                        <label htmlFor="bedridden">Bedridden</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="cancer" />
-                        <label htmlFor="cancer">Cancer</label>
-                    </li>
-                    </ul>
-
-                    <ul>
-                    <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Pension</li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="pension-yes" />
-                        <label htmlFor="pension-yes">Yes</label>
-                    </li>
-                    <li className="p-4 hover:bg-gray-200 cursor-pointer flex items-center">
-                        <input type="checkbox" className="mr-2" id="pension-no" />
-                        <label htmlFor="pension-no">No</label>
-                    </li>
-                    </ul>
-                </nav>
-            </aside>
-
+              <FilterSidebar setFilteredUser = {setFilteredUser} users={users} />
             </div>
             <div className="container mx-auto p-4">
               <div className="flex justify-between items-center mb-4">
@@ -431,18 +271,18 @@ const Resfilter = () => {
                   <thead className="bg-gray-200">
                     <tr>
                       <th className="p-4 text-sm text-gray-500 text-start">House No</th>
-                      <th className="p-4 text-sm text-gray-500 text-start">Family Head Name</th>
+                      <th className="p-4 text-sm text-gray-500 text-start">Name</th>
+                      <th className="p-4 text-sm text-gray-500 text-start">Blood Group</th>
                       <th className="p-4 text-sm text-gray-500 text-start">Contact Number</th>
-                      <th className="p-4 text-sm text-gray-500 text-start">No of Members</th>
                     </tr>
                   </thead>
-                  <tbody >
+                  <tbody>
                     {currentUsers.map((user) => (
                       <tr key={user.id} className="border-b hover:bg-gray-100">
-                        <td className="p-4 ">{user.house_number}</td>
-                        <td className="p-4">{user.name_of_family_head}</td>
-                        <td className="p-4">{user.contac_number_familyhead}</td>
-                        <td className="p-4">{user.num_of_family_members}</td>
+                        <td className="p-4">{user.house_number}</td>
+                        <td className="p-4">{user.f_name}</td>
+                        <td className="p-4">{user.blood_group}</td>
+                        <td className="p-4">{user.phone_num}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -468,7 +308,7 @@ const Resfilter = () => {
                   Next
                 </button>
               </div>
-              <DashFoot/>
+              <DashFoot />
             </div>
           </main>
         </div>
