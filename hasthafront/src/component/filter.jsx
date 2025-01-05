@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Home } from 'lucide-react';
 
-const FilterSidebar = ({ setFilteredUser, users }) => {
+const FilterSidebar = ({ filterCategories,setFilteredUser, users }) => {
   const [openSections, setOpenSections] = useState({});
   
 
@@ -27,64 +27,6 @@ const FilterSidebar = ({ setFilteredUser, users }) => {
         
     setFilteredUser(updatedUsers)
   };
-
-  const filterCategories = [
-    {
-      id:'gender',
-      name: 'Sex',
-      options: ['male', 'female','transgender'],
-    },
-    {
-        id:'income',
-      name: 'Income',
-      options: ['low-income', 'middle-income', 'high-income'],
-    },
-    {
-        id:'job_sec',
-      name: 'Job Sector',
-      options: ['private', 'government', 'self-employed'],
-    },
-    {
-        id:'marital',
-      name: 'Marital Status',
-      options: ['single', 'married', 'divorced'],
-    },
-    {
-        id:'education',
-      name: 'Education',
-      options: ['high school', 'graduate', 'post graduate', 'phd'],
-    },
-    {
-        id:'blood_group',
-      name: 'Blood Group',
-      options: ['a+','a-', 'b+','b-', 'o+','o-', 'ab+','ab-'],
-    },
-    {
-        id:'ex_serv',
-      name: 'Ex-Services',
-      options: ['yes', 'no'],
-    },
-    {
-      id:'sugar',
-      name: 'Sugar',
-      options: ['Yes', 'No'],
-    },
-    {
-        id:'bp',
-        name: 'Blood Pressure',
-        options: ['Yes', 'No'],
-      },
-      {
-        id:'cancer',
-        name: 'Cancer',
-        options: ['Yes', 'No'],
-      },
-    {
-        id:'pension_avl',
-      name: 'Pension',
-      options: ['yes', 'no'],
-    },
-  ];
 
   return (
     <aside className="fixed top-0 left-0 h-full w-64 bg-white shadow-md transition-transform duration-300 ease-in-out md:translate-x-0 md:relative z-20">

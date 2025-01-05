@@ -74,10 +74,12 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
             Comercial Details
           </li>
           </Link>
-          <li className="p-4 hover:bg-gray-200 hover:text-orange-600 cursor-pointer flex items-center">
-            <SlidersHorizontal size={14} className="mr-2" />
-            Comercial Filter
-          </li>
+          <Link to = '/comfilter'>
+            <li className="p-4 hover:bg-gray-200 hover:text-orange-600 cursor-pointer flex items-center">
+              <SlidersHorizontal size={14} className="mr-2" />
+              Comercial Filter
+            </li>
+          </Link>
         </ul>
         <ul>
           <Link to='/hosdetails'>
@@ -116,7 +118,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
           </Link>
         </ul>
         <ul>
-          <Link to='/comdetails'>
+          <Link to='/dashboard'>
           <li className="p-4 pl-5 font-semibold uppercase bg-gray-100">Additional Info</li>
           <li className="p-4 hover:bg-gray-200 hover:text-orange-600 cursor-pointer flex items-center">
             <Info size={14} className="mr-2" />

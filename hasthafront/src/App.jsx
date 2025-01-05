@@ -8,6 +8,7 @@ import Hosdetails from './pages/details/hosdetails.jsx'
 import Edudetails from './pages/details/edudetails.jsx'
 import Inddetails from './pages/details/inddetails.jsx'
 import Resfilter from './pages/filters/resfilter.jsx'
+import Comfilter from './pages/filters/comfilter.jsx'
 
 function App(){
   return (
@@ -21,6 +22,7 @@ function App(){
           <Route path='/edudetails' element={<Edudetails/>}/>
           <Route path='/inddetails' element={<Inddetails/>}/>
           <Route path='/resfilter' element={<Resfilter/>}/>
+          <Route path='/comfilter' element={<Comfilter/>}/>
         </Routes>
     </div>
   )

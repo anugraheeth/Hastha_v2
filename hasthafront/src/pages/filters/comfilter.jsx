@@ -9,7 +9,7 @@ import DashFoot from "../../component/dashfooter";
 import { get } from "../services/ApiEndPoint";
 import FilterSidebar from "../../component/filter";
 
-const Resfilter = () => {
+const Comfilter = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUser] = useState([]);
@@ -21,66 +21,31 @@ const Resfilter = () => {
 
   const filterCategories = [
     {
-      id:'gender',
-      name: 'Sex',
-      options: ['male', 'female','transgender'],
+      id:'type_of_business',
+      name: 'Type of Business',
+      options: ['workshop', 'medicals','store'],
     },
     {
-        id:'income',
-      name: 'Income',
-      options: ['low-income', 'middle-income', 'high-income'],
-    },
-    {
-        id:'job_sec',
-      name: 'Job Sector',
-      options: ['private', 'government', 'self-employed'],
-    },
-    {
-        id:'marital',
-      name: 'Marital Status',
-      options: ['single', 'married', 'divorced'],
-    },
-    {
-        id:'education',
-      name: 'Education',
-      options: ['high school', 'graduate', 'post graduate', 'phd'],
-    },
-    {
-        id:'blood_group',
-      name: 'Blood Group',
-      options: ['a+','a-', 'b+','b-', 'o+','o-', 'ab+','ab-'],
-    },
-    {
-        id:'ex_serv',
-      name: 'Ex-Services',
-      options: ['yes', 'no'],
-    },
-    {
-      id:'sugar',
-      name: 'Sugar',
+        id:'liscense',
+      name: 'License Availibility',
       options: ['Yes', 'No'],
     },
     {
-        id:'bp',
-        name: 'Blood Pressure',
-        options: ['Yes', 'No'],
-      },
-      {
-        id:'cancer',
-        name: 'Cancer',
-        options: ['Yes', 'No'],
-      },
-    {
-        id:'pension_avl',
-      name: 'Pension',
-      options: ['yes', 'no'],
+        id:'cctv_avl',
+      name: 'CC TV',
+      options: ['Yes', 'No'],
     },
+    {
+        id:'emergency_ss',
+      name: 'Emergency Security Sysytem Status',
+      options: ['Yes', 'No'],
+    }
   ];
 
   const getData = async () => {
     try {
       setLoading(true);
-      const response = await get('api/auth/resfilter');
+      const response = await get('api/auth/comfilter');
       const data = response.data.data;
       console.log(response.data.message);
       setUsers(data);
@@ -99,21 +64,23 @@ const Resfilter = () => {
     if (users.length > 0) {
       const filteredUser = users.filter(
         (user) =>
-          user.f_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.house_number.toLowerCase().includes(searchTerm.toLowerCase())
+          user.name_of_businness.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.name_of_business_owner.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredUser(filteredUser);
+      console.log(filteredUsers)
     }
   }, [users, searchTerm]);  
 
   const handleDownloadCSV = () => {
     const csvData = [
-      ["House NO", "Name", "Blood Group", "Contact"],
+      ["Building NO", "Business Name", "Owner Name", "Type of Business","Contact"],
       ...filteredUsers.map((user) => [
-        user.house_number,
-        user.f_name,
-        user.blood_group,
-        user.phone_num,
+        user.building_number,
+        user.name_of_businness,
+        user.name_of_business_owner,
+        user.type_of_businnes,
+        user.phone,
       ]),
     ];
 
@@ -135,13 +102,14 @@ const Resfilter = () => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     const tableData = filteredUsers.map((user) => [
-      user.house_number,
-      user.f_name,
-      user.blood_group,
-      user.phone_num,
+        user.building_number,
+        user.name_of_businness,
+        user.name_of_business_owner,
+        user.type_of_businnes,
+        user.phone,
     ]);
     doc.autoTable({
-      head: [["House NO", "Name", "Blood Group", "Contact"]],
+      head: [["Building NO", "Business Name", "Owner Name", "Type of Business","Contact"]],
       body: tableData,
     });
     doc.save("users.pdf");
@@ -160,10 +128,11 @@ const Resfilter = () => {
       .map(
         (user) => `  
   <user>
-    <House_NO>${user.house_number}</House_NO>
-    <Name>${user.f_name}</Name>
-    <Blood_Group>${user.blood_group}</Blood_Group>
-    <Contact>${user.phone_num}</Contact>
+    <Building_NO>${user.building_number}</Building_NO>
+    <Business_Name>${user.name_of_businness}</Business_Name>
+    <Owner_Name>${user.name_of_business_owner}</Owner_Name>
+    <Type_Of_Business>${user.type_of_businnes}</Type_Of_Business>
+    <Contact>${user.phone}</Contact>
   </user>`
       )
       .join("");
@@ -328,19 +297,21 @@ const Resfilter = () => {
                 <table className="min-w-full table-auto">
                   <thead className="bg-gray-200">
                     <tr>
-                      <th className="p-4 text-sm text-gray-500 text-start">House No</th>
-                      <th className="p-4 text-sm text-gray-500 text-start">Name</th>
-                      <th className="p-4 text-sm text-gray-500 text-start">Blood Group</th>
-                      <th className="p-4 text-sm text-gray-500 text-start">Contact Number</th>
+                      <th className="p-4 text-sm text-gray-500 text-start">Bulding No</th>
+                      <th className="p-4 text-sm text-gray-500 text-start">Business Name</th>
+                      <th className="p-4 text-sm text-gray-500 text-start">Owner Name</th>
+                      <th className="p-4 text-sm text-gray-500 text-start">Type Of Business </th>
+                      <th className="p-4 text-sm text-gray-500 text-start">Phone</th>
                     </tr>
                   </thead>
                   <tbody>
                     {currentUsers.map((user) => (
                       <tr key={user.id} className="border-b hover:bg-gray-100">
-                        <td className="p-4">{user.house_number}</td>
-                        <td className="p-4">{user.f_name}</td>
-                        <td className="p-4">{user.blood_group}</td>
-                        <td className="p-4">{user.phone_num}</td>
+                        <td className="p-4">{user.building_number}</td>
+                        <td className="p-4">{user.name_of_businness}</td>
+                        <td className="p-4">{user.name_of_business_owner}</td>
+                        <td className="p-4">{user.type_of_businnes}</td>
+                        <td className="p-4">{user.phone}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -375,4 +346,4 @@ const Resfilter = () => {
   );
 };
 
-export default Resfilter;
+export default Comfilter;
